@@ -102,8 +102,8 @@ export async function getAllSiteSlugs(): Promise<string[]> {
       select: { slug: true },
     });
     return result.docs.map((doc) => doc.slug as string).filter(Boolean);
-  } catch {
-    // Fallback for build-time when DB isn't available
+  } catch (err) {
+    console.error("[getAllSiteSlugs] Error:", err);
     return [];
   }
 }
@@ -138,7 +138,8 @@ export async function getSiteBySlug(
       widgets: (doc.widgets as any[]) || [],
       adSlots: (doc.adSlots as any[]) || [],
     };
-  } catch {
+  } catch (err) {
+    console.error("[getSiteBySlug] Error:", err);
     return null;
   }
 }
@@ -168,7 +169,8 @@ export async function getAllSites(): Promise<SiteConfig[]> {
       widgets: (doc.widgets as any[]) || [],
       adSlots: (doc.adSlots as any[]) || [],
     }));
-  } catch {
+  } catch (err) {
+    console.error("[getAllSites] Error:", err);
     return [];
   }
 }

@@ -75,7 +75,8 @@ export async function getPublishedArticles(
           : undefined,
       imageAlt: doc.imageAlt as string | undefined,
     }));
-  } catch {
+  } catch (err) {
+    console.error("[getPublishedArticles] Error for site", siteSlug, err);
     return [];
   }
 }
