@@ -133,7 +133,9 @@ export async function getSiteBySlug(
       adsenseClientId: (doc.adsenseClientId as string) || "",
       comingSoon: (doc.comingSoon as boolean) ?? false,
       showSidebar: (doc.showSidebar as boolean) ?? true,
-      logo: doc.logo,
+      logo: typeof doc.logo === "object" && doc.logo !== null
+          ? (doc.logo as { url?: string }).url || (doc.logoUrl as string) || undefined
+          : (doc.logoUrl as string) || undefined,
       logoAlt: (doc.logoAlt as string) || undefined,
       navItems: (doc.navItems as any[]) || [],
       widgets: (doc.widgets as any[]) || [],
@@ -164,7 +166,9 @@ export async function getAllSites(): Promise<SiteConfig[]> {
       adsenseClientId: (doc.adsenseClientId as string) || "",
       comingSoon: (doc.comingSoon as boolean) ?? false,
       showSidebar: (doc.showSidebar as boolean) ?? true,
-      logo: doc.logo,
+      logo: typeof doc.logo === "object" && doc.logo !== null
+          ? (doc.logo as { url?: string }).url || (doc.logoUrl as string) || undefined
+          : (doc.logoUrl as string) || undefined,
       logoAlt: (doc.logoAlt as string) || undefined,
       navItems: (doc.navItems as any[]) || [],
       widgets: (doc.widgets as any[]) || [],

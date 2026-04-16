@@ -55,6 +55,13 @@ export const Sites: CollectionConfig = {
       relationTo: 'media',
     },
     {
+      name: 'logoUrl',
+      type: 'text',
+      admin: {
+        description: 'Externer Logo-Pfad (Fallback wenn kein Upload)',
+      },
+    },
+    {
       name: 'logoAlt',
       type: 'text',
     },
