@@ -175,6 +175,10 @@ export interface Site {
   description?: string | null;
   themePreset?: ('blue' | 'rose' | 'teal' | 'coral' | 'amber' | 'emerald') | null;
   logo?: (number | null) | Media;
+  /**
+   * Externer Logo-Pfad (Fallback wenn kein Upload)
+   */
+  logoUrl?: string | null;
   logoAlt?: string | null;
   navItems?:
     | {
@@ -658,6 +662,7 @@ export interface SitesSelect<T extends boolean = true> {
   description?: T;
   themePreset?: T;
   logo?: T;
+  logoUrl?: T;
   logoAlt?: T;
   navItems?:
     | T

@@ -122,26 +122,26 @@ function extractJsxComponents(mdx: string): {
   cleaned = cleaned.replace(
     /<(AffiliateBox|InlineAd|Figure|ObfuscatedEmail)\s+([\s\S]*?)\/>/g,
     (_match, type, propsStr) => {
-      const marker = `<!--COMPONENT_${counter}-->`;
+      const marker = `BLOCK_MARKER_${counter}`;
       const props = parseJsxProps(propsStr);
       const isInline = type === "ObfuscatedEmail";
       components.push({ marker, type, props, isInline });
       counter++;
-      // Block components get their own paragraph
+      // Block components get their own paragraph line
       return isInline ? marker : `\n\n${marker}\n\n`;
     }
   );
 
   // AffiliateLink with children (remaining ones outside tables)
+  // Keep inline — replace with markdown link (Lexical handles links natively)
   cleaned = cleaned.replace(
     /<AffiliateLink\s+([\s\S]*?)>([\s\S]*?)<\/AffiliateLink>/g,
     (_match, propsStr, children) => {
       const props = parseJsxProps(propsStr);
       const text = children.trim() || props.text || "Link";
-      const marker = `<!--COMPONENT_${counter}-->`;
-      components.push({ marker, type: "AffiliateLink", props, children: text, isInline: true });
-      counter++;
-      return marker;
+      const url = props.linkUrl || props.href || "#";
+      // Render as markdown link — Lexical converts these to link nodes
+      return `[${text}](${url})`;
     }
   );
 
@@ -150,10 +150,9 @@ function extractJsxComponents(mdx: string): {
     /<AffiliateLink\s+([\s\S]*?)\/>/g,
     (_match, propsStr) => {
       const props = parseJsxProps(propsStr);
-      const marker = `<!--COMPONENT_${counter}-->`;
-      components.push({ marker, type: "AffiliateLink", props, isInline: true });
-      counter++;
-      return marker;
+      const text = props.text || "Link";
+      const url = props.linkUrl || props.href || "#";
+      return `[${text}](${url})`;
     }
   );
 
@@ -636,60 +635,36 @@ async function convertMdxToLexical(mdxBody: string): Promise<object> {
     return { root: { type: "root", version: 1, children: [], direction: "ltr", format: "", indent: 0 } };
   }
 
-  // Step 4: Replace component markers with Lexical block nodes
+  // Step 4: Replace BLOCK_MARKER_N paragraphs with actual Lexical block nodes
   const finalChildren: object[] = [];
 
   for (const child of lexical.root.children) {
-    // Check if this node contains a component marker
-    const childStr = JSON.stringify(child);
-    let foundComponent = false;
+    // Check if this paragraph contains a block marker
+    const firstChild = (child as { children?: { text?: string }[] }).children?.[0];
+    const text = firstChild?.text || "";
+    const markerMatch = text.match(/^BLOCK_MARKER_(\d+)$/);
 
-    for (const comp of components) {
-      if (childStr.includes(comp.marker.replace(/</g, "&lt;").replace(/>/g, "&gt;")) ||
-          childStr.includes(comp.marker)) {
-
-        if (!comp.isInline) {
-          // Replace the entire paragraph with the block node
-          switch (comp.type) {
-            case "AffiliateBox":
-              finalChildren.push(makeAffiliateBoxBlock(comp.props));
-              break;
-            case "InlineAd":
-              finalChildren.push(makeInlineAdBlock(comp.props));
-              break;
-            case "Figure":
-              finalChildren.push(makeFigureBlock(comp.props));
-              break;
-          }
-          foundComponent = true;
-        } else {
-          // Inline component — replace marker text within the paragraph
-          // For now, just insert the inline block
-          const inlineNode =
-            comp.type === "AffiliateLink"
-              ? makeAffiliateLinkInline(comp.props, comp.children)
-              : makeTextNode(
-                  `${comp.props.user}@${comp.props.domain}`
-                );
-
-          // Try to find and replace the marker in the paragraph children
-          const replaced = replaceMarkerInChildren(
-            (child as { children?: object[] }).children || [],
-            comp.marker,
-            inlineNode
-          );
-          if (replaced) {
-            finalChildren.push(child);
-          } else {
-            finalChildren.push(child);
-          }
-          foundComponent = true;
+    if (markerMatch) {
+      const idx = parseInt(markerMatch[1]);
+      const comp = components[idx];
+      if (comp && !comp.isInline) {
+        switch (comp.type) {
+          case "AffiliateBox":
+            finalChildren.push(makeAffiliateBoxBlock(comp.props));
+            break;
+          case "InlineAd":
+            finalChildren.push(makeInlineAdBlock(comp.props));
+            break;
+          case "Figure":
+            finalChildren.push(makeFigureBlock(comp.props));
+            break;
+          default:
+            finalChildren.push(child); // Unknown type, keep as paragraph
         }
-        break;
+      } else {
+        finalChildren.push(child); // Inline component or not found
       }
-    }
-
-    if (!foundComponent) {
+    } else {
       finalChildren.push(child);
     }
   }
