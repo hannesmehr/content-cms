@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Traffic light icon -->
+  <!-- Post -->
+  <rect x="19" y="40" width="10" height="6" rx="1.5" fill="#9CA3AF"/>
+  <!-- Body -->
+  <rect x="10" y="2" width="28" height="40" rx="6" fill="#2563eb"/>
+  <!-- Red light -->
+  <circle cx="24" cy="11" r="5.5" fill="#374151" opacity="0.3"/>
+  <!-- Yellow light -->
+  <circle cx="24" cy="23" r="5.5" fill="#374151" opacity="0.3"/>
+  <!-- Green light (active) -->
+  <circle cx="24" cy="35" r="5.5" fill="#4ade80"/>
+  <!-- Checkmark on green -->
+  <path d="M20 35L23 38L28.5 32" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

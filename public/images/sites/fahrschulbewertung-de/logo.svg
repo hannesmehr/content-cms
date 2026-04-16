@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 48" fill="none">
+  <!-- Traffic light icon -->
+  <g transform="translate(4, 1)">
+    <!-- Post -->
+    <rect x="15" y="36" width="6" height="8" rx="1" fill="#9CA3AF"/>
+    <!-- Body -->
+    <rect x="8" y="2" width="20" height="36" rx="4" fill="#2563eb"/>
+    <!-- Red light -->
+    <circle cx="18" cy="10" r="4.5" fill="#374151" opacity="0.3"/>
+    <!-- Yellow light -->
+    <circle cx="18" cy="21" r="4.5" fill="#374151" opacity="0.3"/>
+    <!-- Green light (active) -->
+    <circle cx="18" cy="32" r="4.5" fill="#4ade80"/>
+    <!-- Green glow -->
+    <circle cx="18" cy="32" r="4.5" fill="#4ade80" opacity="0.3">
+      <animate attributeName="r" values="4.5;6;4.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Checkmark on green -->
+    <path d="M14.5 32L17 34.5L21.5 29.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <!-- Text -->
+  <text x="48" y="22" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="20" font-weight="700" fill="#111827" letter-spacing="-0.5">fahrschul</text>
+  <text x="48" y="42" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="20" font-weight="700" fill="#111827" letter-spacing="-0.5">bewertung<tspan fill="#2563eb" font-weight="400">.de</tspan></text>
+</svg>

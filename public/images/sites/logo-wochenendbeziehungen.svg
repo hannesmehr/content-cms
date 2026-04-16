@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 48" fill="none">
+  <!-- Two connected hearts representing a couple -->
+  <g transform="translate(0, 4)">
+    <!-- Left heart -->
+    <path d="M12 8C10.5 3 6 2 3.5 5S1.5 13 12 22C22.5 13 22.5 8 20 5S13.5 3 12 8Z" fill="#E11D48" opacity="0.85"/>
+    <!-- Right heart (overlapping, slightly offset) -->
+    <path d="M26 8C24.5 3 20 2 17.5 5S15.5 13 26 22C36.5 13 36.5 8 34 5S27.5 3 26 8Z" fill="#E11D48" opacity="0.6"/>
+    <!-- Dotted connection line between hearts (distance symbol) -->
+    <line x1="10" y1="20" x2="28" y2="20" stroke="#E11D48" stroke-width="1.2" stroke-dasharray="2 2" opacity="0.5"/>
+  </g>
+  <!-- Text -->
+  <text x="44" y="22" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="20" font-weight="700" fill="#111827" letter-spacing="-0.5">wochenend</text>
+  <text x="44" y="42" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="20" font-weight="700" fill="#111827" letter-spacing="-0.5">beziehungen<tspan fill="#E11D48" font-weight="400">.de</tspan></text>
+</svg>
