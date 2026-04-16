@@ -45,5 +45,12 @@ export const Media: CollectionConfig = {
         description: 'Optionale Site-Zuordnung zum Filtern',
       },
     },
+    {
+      name: 'externalUrl',
+      type: 'text',
+      admin: {
+        description: 'Externe Bild-URL (z.B. Vercel Blob). Wird bevorzugt wenn kein Upload.',
+      },
+    },
   ],
 }

@@ -72,7 +72,7 @@ export async function getPublishedArticles(
       image:
         typeof doc.image === "object" && doc.image !== null
           ? (doc.image as { url?: string }).url
-          : undefined,
+          : (doc.imageUrl as string) || undefined,
       imageAlt: doc.imageAlt as string | undefined,
     }));
   } catch (err) {
@@ -137,7 +137,7 @@ export async function getArticleBySlug(
       image:
         typeof doc.image === "object" && doc.image !== null
           ? (doc.image as { url?: string }).url
-          : undefined,
+          : (doc.imageUrl as string) || undefined,
       imageAlt: doc.imageAlt as string | undefined,
       content: doc.content,
       adSlots: Array.isArray(doc.adSlots)

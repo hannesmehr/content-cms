@@ -245,6 +245,10 @@ export interface Media {
    * Optionale Site-Zuordnung zum Filtern
    */
   site?: (number | null) | Site;
+  /**
+   * Externe Bild-URL (z.B. Vercel Blob). Wird bevorzugt wenn kein Upload.
+   */
+  externalUrl?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -371,7 +375,14 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Bild aus Media Manager. Alternativ: imageUrl für externe URLs.
+   */
   image?: (number | null) | Media;
+  /**
+   * Externer Bildpfad (z.B. /media/images/posts/...webp). Fallback wenn kein Upload.
+   */
+  imageUrl?: string | null;
   imageAlt?: string | null;
   adSlots?:
     | {
@@ -718,6 +729,7 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
       };
   image?: T;
+  imageUrl?: T;
   imageAlt?: T;
   adSlots?:
     | T
@@ -821,6 +833,7 @@ export interface AffiliateLinksSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   site?: T;
+  externalUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

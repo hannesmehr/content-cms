@@ -138,6 +138,16 @@ export const Posts: CollectionConfig = {
       name: 'image',
       type: 'upload',
       relationTo: 'media',
+      admin: {
+        description: 'Bild aus Media Manager. Alternativ: imageUrl für externe URLs.',
+      },
+    },
+    {
+      name: 'imageUrl',
+      type: 'text',
+      admin: {
+        description: 'Externer Bildpfad (z.B. /media/images/posts/...webp). Fallback wenn kein Upload.',
+      },
     },
     {
       name: 'imageAlt',
