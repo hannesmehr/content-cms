@@ -2,7 +2,15 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { buildConfig } from "payload";
 import { postgresAdapter } from "@payloadcms/db-postgres";
-import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import {
+  lexicalEditor,
+  BlocksFeature,
+  FixedToolbarFeature,
+  HeadingFeature,
+  InlineToolbarFeature,
+} from "@payloadcms/richtext-lexical";
+import { AffiliateBoxBlock, FigureBlock, InlineAdBlock } from "./lexical/blocks";
+import { AffiliateLinkInlineBlock, ObfuscatedEmailInlineBlock } from "./lexical/inlineBlocks";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import sharp from "sharp";
 
@@ -45,7 +53,18 @@ export default buildConfig({
 
   globals: [Settings],
 
-  editor: lexicalEditor({}),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [
+      ...defaultFeatures,
+      FixedToolbarFeature(),
+      InlineToolbarFeature(),
+      HeadingFeature({ enabledHeadingSizes: ["h2", "h3", "h4"] }),
+      BlocksFeature({
+        blocks: [AffiliateBoxBlock, FigureBlock, InlineAdBlock],
+        inlineBlocks: [AffiliateLinkInlineBlock, ObfuscatedEmailInlineBlock],
+      }),
+    ],
+  }),
 
   secret: process.env.PAYLOAD_SECRET || "CHANGE-ME-IN-PRODUCTION",
 
