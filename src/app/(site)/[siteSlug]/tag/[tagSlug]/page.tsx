@@ -25,8 +25,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getAllTags(siteSlug),
     getSiteBySlug(siteSlug),
   ]);
-  const tag = tags.find((t) => slugifyTag(t) === tagSlug);
-  if (!tag || !site) return {};
+  const tagEntry = tags.find((t) => slugifyTag(t.tag) === tagSlug);
+  if (!tagEntry || !site) return {};
+  const tag = tagEntry.tag;
 
   const title = `Thema: ${tag}`;
   const description = `Alle Artikel zum Thema "${tag}"`;
@@ -64,8 +65,9 @@ export default async function TagPage({ params }: Props) {
     getAllTags(siteSlug),
     getSiteBySlug(siteSlug),
   ]);
-  const tag = tags.find((t) => slugifyTag(t) === tagSlug);
-  if (!tag || !site) notFound();
+  const tagEntry = tags.find((t) => slugifyTag(t.tag) === tagSlug);
+  if (!tagEntry || !site) notFound();
+  const tag = tagEntry.tag;
 
   const articles = await getArticlesByTag(tag, siteSlug);
   const siteUrl = `https://${site.domain}`;

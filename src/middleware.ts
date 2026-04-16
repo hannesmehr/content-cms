@@ -14,12 +14,8 @@ const EXCLUDED_PREFIXES = [
   "/media/",      // Vercel Blob media
 ];
 
-// Rewrites: /sitemap.xml → /api/sitemap, etc.
-const FILE_REWRITES: Record<string, string> = {
-  "/sitemap.xml": "/api/sitemap",
-  "/robots.txt": "/api/robots",
-  "/ai.txt": "/api/ai-txt",
-};
+// Note: /sitemap.xml, /robots.txt, /ai.txt are handled as route files
+// under (site)/[siteSlug]/ — the default site routing below rewrites them.
 
 // Regex: /img/<width>/<quality>/<path>
 const IMG_PATTERN = /^\/img\/(\d+)\/(\d+)\/(.+)$/;
@@ -87,17 +83,6 @@ export function middleware(request: NextRequest) {
   // --- Local dev: Default site ---
   const defaultSite = process.env.DEFAULT_SITE;
 
-  // SEO files → API routes
-  const fileRewrite = FILE_REWRITES[pathname];
-  if (fileRewrite) {
-    const resolvedSlug = siteSlug || defaultSite;
-    if (resolvedSlug) {
-      const url = request.nextUrl.clone();
-      url.pathname = `${fileRewrite}/${resolvedSlug}`;
-      return addSecurityHeaders(NextResponse.rewrite(url));
-    }
-  }
-
   // Production: domain → /{siteSlug}/path
   if (siteSlug) {
     if (pathname.startsWith(`/${siteSlug}`)) {
@@ -115,7 +100,10 @@ export function middleware(request: NextRequest) {
       hostname.startsWith("192.168.")) &&
     defaultSite
   ) {
-    if (pathname.startsWith(`/${defaultSite}`)) {
+    // If path starts with any known site slug, pass through
+    const knownSlugs = (process.env.SITE_SLUGS || "").split(",").filter(Boolean);
+    const firstSegment = pathname.split("/")[1];
+    if (knownSlugs.includes(firstSegment) || firstSegment === defaultSite) {
       return addSecurityHeaders(NextResponse.next());
     }
     const url = request.nextUrl.clone();
