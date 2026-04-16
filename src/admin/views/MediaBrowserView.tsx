@@ -1,30 +1,30 @@
-"use client";
+import React from "react";
+import type { AdminViewServerProps } from "payload";
+import { DefaultTemplate } from "@payloadcms/next/templates";
+import { Gutter } from "@payloadcms/ui";
+import MediaBrowserClient from "./MediaBrowserClient";
 
-import React, { useEffect, useState } from "react";
-import MediaBrowser from "../components/MediaBrowser";
-
-type SiteOption = { slug: string; domain: string };
-
-const MediaBrowserView: React.FC = () => {
-  const [sites, setSites] = useState<SiteOption[]>([]);
-
-  useEffect(() => {
-    fetch("/api/sites?limit=100&depth=0")
-      .then((r) => r.json())
-      .then((d) => {
-        const docs = d.docs || [];
-        setSites(docs.map((s: { slug: string; domain: string }) => ({
-          slug: s.slug,
-          domain: s.domain,
-        })));
-      })
-      .catch(() => {});
-  }, []);
-
+const MediaBrowserView: React.FC<AdminViewServerProps> = ({
+  initPageResult,
+  params,
+  searchParams,
+}) => {
   return (
-    <div style={{ padding: "20px" }}>
-      <MediaBrowser sites={sites} />
-    </div>
+    <DefaultTemplate
+      i18n={initPageResult.req.i18n}
+      locale={initPageResult.locale}
+      params={params}
+      payload={initPageResult.req.payload}
+      permissions={initPageResult.permissions}
+      searchParams={searchParams}
+      user={initPageResult.req.user || undefined}
+      visibleEntities={initPageResult.visibleEntities}
+    >
+      <Gutter>
+        <h1 style={{ marginBottom: "20px" }}>Media Browser</h1>
+        <MediaBrowserClient />
+      </Gutter>
+    </DefaultTemplate>
   );
 };
 
