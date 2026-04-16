@@ -510,6 +510,84 @@ function convertInlineElement(el: Element): object | null {
   return makeTextNode(text, format);
 }
 
+// --- Table HTML → Lexical Table Node ---
+
+function htmlTableToLexicalNode(tableHtml: string): object {
+  const dom = new JSDOM(`<div>${tableHtml}</div>`);
+  const table = dom.window.document.querySelector("table");
+  if (!table) return makeParagraph([makeTextNode("[Table conversion failed]")]);
+
+  const rows: object[] = [];
+  const allRows = table.querySelectorAll("tr");
+
+  allRows.forEach((tr, rowIdx) => {
+    const cells: object[] = [];
+    tr.querySelectorAll("th, td").forEach((cell) => {
+      // Parse cell content: handle bold, links, etc.
+      const cellChildren: object[] = [];
+      for (const child of Array.from(cell.childNodes)) {
+        if (child.nodeType === 3) {
+          const text = child.textContent || "";
+          if (text.trim()) cellChildren.push(makeTextNode(text));
+        } else if (child.nodeType === 1) {
+          const el = child as Element;
+          const tag = el.tagName?.toLowerCase();
+          if (tag === "strong" || tag === "b") {
+            cellChildren.push(makeTextNode(el.textContent || "", 1)); // bold
+          } else if (tag === "em" || tag === "i") {
+            cellChildren.push(makeTextNode(el.textContent || "", 2)); // italic
+          } else if (tag === "a") {
+            cellChildren.push({
+              type: "link",
+              version: 3,
+              children: [makeTextNode(el.textContent || "")],
+              direction: "ltr",
+              format: "",
+              indent: 0,
+              fields: {
+                url: el.getAttribute("href") || "",
+                linkType: (el.getAttribute("href") || "").startsWith("/") ? "internal" : "custom",
+                newTab: !(el.getAttribute("href") || "").startsWith("/"),
+              },
+            });
+          } else {
+            cellChildren.push(makeTextNode(el.textContent || ""));
+          }
+        }
+      }
+
+      if (cellChildren.length === 0) {
+        cellChildren.push(makeTextNode(""));
+      }
+
+      cells.push({
+        type: "tablecell",
+        version: 1,
+        children: [makeParagraph(cellChildren)],
+        colSpan: 1,
+        rowSpan: 1,
+        headerState: rowIdx === 0 ? 1 : 0,
+        backgroundColor: "",
+      });
+    });
+
+    rows.push({
+      type: "tablerow",
+      version: 1,
+      children: cells,
+    });
+  });
+
+  return {
+    type: "table",
+    version: 1,
+    children: rows,
+    direction: "ltr",
+    format: "",
+    indent: 0,
+  };
+}
+
 // --- Main conversion pipeline ---
 
 function readMdxBody(filePath: string): string {
@@ -523,7 +601,17 @@ async function convertMdxToLexical(mdxBody: string): Promise<object> {
   const { markdown, components } = extractJsxComponents(mdxBody);
 
   // Step 2: Convert cleaned markdown to HTML
-  const html = await markdownToHtml(markdown);
+  let html = await markdownToHtml(markdown);
+
+  // Step 2.5: Extract <table> elements (Payload converter doesn't support them)
+  const extractedTables: { marker: string; tableHtml: string }[] = [];
+  let tableCounter = 0;
+  html = html.replace(/<table>[\s\S]*?<\/table>/g, (tableHtml) => {
+    const marker = `<p>TABLE_MARKER_${tableCounter}</p>`;
+    extractedTables.push({ marker: `TABLE_MARKER_${tableCounter}`, tableHtml });
+    tableCounter++;
+    return marker;
+  });
 
   // Step 3: Convert HTML to Lexical JSON via Payload's converter
   const lexical = (await htmlToLexical(html)) as {
@@ -593,10 +681,27 @@ async function convertMdxToLexical(mdxBody: string): Promise<object> {
     }
   }
 
+  // Step 5: Replace table markers with Lexical table nodes
+  const withTables: object[] = [];
+  for (const child of finalChildren) {
+    const childStr = JSON.stringify(child);
+    let isTable = false;
+    for (const table of extractedTables) {
+      if (childStr.includes(table.marker)) {
+        withTables.push(htmlTableToLexicalNode(table.tableHtml));
+        isTable = true;
+        break;
+      }
+    }
+    if (!isTable) {
+      withTables.push(child);
+    }
+  }
+
   return {
     root: {
       ...lexical.root,
-      children: finalChildren,
+      children: withTables,
     },
   };
 }
