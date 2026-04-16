@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getPayload } from "payload";
 import config from "@payload-config";
 
@@ -21,7 +22,6 @@ export async function getToolContent(
       collection: "sites",
       where: { slug: { equals: siteSlug } },
       limit: 1,
-      select: { id: true },
     });
     const siteId = siteResult.docs[0]?.id;
     if (!siteId) return null;

@@ -23,8 +23,12 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { default as default_6c46f864f5463c6ea3a38dbbf2ca26a9 } from '@/admin/components/AdminNavLinks'
 import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { default as default_14791749cf2c7f6d53364c86388c3651 } from '@/admin/views/DashboardView'
+import { default as default_e602e9eea02b5ef07747c8ea1990b315 } from '@/admin/views/MediaBrowserView'
+import { default as default_1ba06ffb82df37f3d3488f7b7ae6ca39 } from '@/admin/views/AwinView'
+import { default as default_cbd5d2492813571dc6d9bb04f8030469 } from '@/admin/views/ActionsView'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -54,7 +58,11 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/admin/components/AdminNavLinks#default": default_6c46f864f5463c6ea3a38dbbf2ca26a9,
   "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@/admin/views/DashboardView#default": default_14791749cf2c7f6d53364c86388c3651,
+  "@/admin/views/MediaBrowserView#default": default_e602e9eea02b5ef07747c8ea1990b315,
+  "@/admin/views/AwinView#default": default_1ba06ffb82df37f3d3488f7b7ae6ca39,
+  "@/admin/views/ActionsView#default": default_cbd5d2492813571dc6d9bb04f8030469,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

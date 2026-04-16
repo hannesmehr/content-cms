@@ -42,7 +42,23 @@ export default buildConfig({
         dashboard: {
           Component: "@/admin/views/DashboardView",
         },
+        mediaBrowser: {
+          Component: "@/admin/views/MediaBrowserView",
+          path: "/media-browser",
+          exact: true,
+        },
+        awin: {
+          Component: "@/admin/views/AwinView",
+          path: "/awin",
+          exact: true,
+        },
+        actions: {
+          Component: "@/admin/views/ActionsView",
+          path: "/actions",
+          exact: true,
+        },
       },
+      afterNavLinks: ["@/admin/components/AdminNavLinks"],
     },
   },
 

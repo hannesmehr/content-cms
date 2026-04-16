@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <!-- Skincare drop/leaf icon -->
-  <path d="M24 2C24 2 8 20 8 31C8 40 15.2 46 24 46C32.8 46 40 40 40 31C40 20 24 2 24 2Z" fill="#ea580c"/>
-  <!-- Leaf vein inside drop (white) -->
-  <path d="M24 16V38" stroke="white" stroke-width="2" stroke-linecap="round"/>
-  <path d="M24 22C19.5 20 16 23.5 16 23.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-  <path d="M24 28C28.5 26 32 29.5 32 29.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-  <path d="M24 34C19.5 32 16 35.5 16 35.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-</svg>

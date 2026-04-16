@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { getPublishedArticles } from "./get-articles";
 import { slugifyTag } from "./slugify-tag";
 

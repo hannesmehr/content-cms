@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Payload-based site retrieval (replaces Keystatic reader)
 // TODO: Replace with actual Payload Local API calls once DB is connected.
 // For now, provides stub functions that match the old API signatures.

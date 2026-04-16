@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <!-- Location pin with heart -->
-  <g transform="translate(0, 0)">
-    <!-- Pin body -->
-    <path d="M14 18C14 10 19 3 25 3C31 3 36 10 36 18C36 28 25 46 25 46C25 46 14 28 14 18Z" fill="#E11D48"/>
-    <!-- Heart inside pin (white) -->
-    <path d="M25 14C23.8 11.2 21.2 10.2 19.2 12.2C17.2 10.2 14.6 11.2 13.5 14C13.5 17.2 19.2 22 19.2 22C19.2 22 25 17.2 25 14Z" fill="white" transform="translate(5.8, 0)"/>
-  </g>
-</svg>

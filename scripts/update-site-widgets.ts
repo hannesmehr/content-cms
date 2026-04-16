@@ -93,7 +93,7 @@ function convertWidgets(keystatic: unknown[]): unknown[] {
       descriptionLines: widget.descriptionLines || 1,
       heroStyle: widget.heroStyle || "minimal",
       heroSubline: widget.heroSubline || "",
-      heroImageUrl: widget.heroImage || "",
+      heroImageUrl: widget.heroImage ? `/media${widget.heroImage}` : "",
       heroImageAlt: widget.heroImageAlt || "",
       heroCtaText: widget.heroCtaText || "",
       heroCtaLink: widget.heroCtaLink || "",
