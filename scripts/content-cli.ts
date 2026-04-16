@@ -129,6 +129,117 @@ async function getPost(slug: string) {
   console.log(JSON.stringify(res.docs[0], null, 2));
 }
 
+/**
+ * Convert Lexical JSON back to markdown for reading/review.
+ * Handles: paragraphs, headings, lists, links, bold/italic, tables, custom blocks.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function lexicalToMarkdown(node: any): string {
+  if (!node) return "";
+  if (Array.isArray(node)) return node.map(lexicalToMarkdown).join("");
+
+  const t = node.type;
+  const children = Array.isArray(node.children) ? node.children : [];
+  const childText = () => children.map(lexicalToMarkdown).join("");
+
+  switch (t) {
+    case "root":
+      return children.map((c: unknown) => lexicalToMarkdown(c)).join("\n\n");
+    case "paragraph":
+      return childText();
+    case "heading": {
+      const level = parseInt((node.tag || "h2").slice(1));
+      return `${"#".repeat(level)} ${childText()}`;
+    }
+    case "text": {
+      let text = node.text || "";
+      const format = node.format || 0;
+      if (format & 1) text = `**${text}**`;
+      if (format & 2) text = `*${text}*`;
+      if (format & 16) text = `\`${text}\``;
+      return text;
+    }
+    case "link": {
+      const url = node.fields?.url || "#";
+      return `[${childText()}](${url})`;
+    }
+    case "list": {
+      const isOrdered = node.listType === "number";
+      return children.map((item: { children?: unknown[] }, i: number) => {
+        const marker = isOrdered ? `${i + 1}.` : "-";
+        return `${marker} ${(item.children || []).map(lexicalToMarkdown).join("")}`;
+      }).join("\n");
+    }
+    case "listitem":
+      return childText();
+    case "table": {
+      const rows = children as Array<{ children: Array<{ children: unknown[] }> }>;
+      if (rows.length === 0) return "";
+      const headerCells = rows[0].children.map((c) => c.children.map(lexicalToMarkdown).join("").trim() || " ");
+      const sepCells = headerCells.map(() => "---");
+      const dataRows = rows.slice(1).map((r) =>
+        r.children.map((c) => c.children.map(lexicalToMarkdown).join("").trim() || " ").join(" | ")
+      );
+      return `| ${headerCells.join(" | ")} |\n| ${sepCells.join(" | ")} |\n${dataRows.map((r) => `| ${r} |`).join("\n")}`;
+    }
+    case "quote":
+      return `> ${childText()}`;
+    case "block": {
+      const f = node.fields || {};
+      switch (f.blockType) {
+        case "affiliateBox":
+          return `<AffiliateBox title="${f.title || ""}" description="${f.description || ""}" linkUrl="${f.linkUrl || ""}" linkText="${f.linkText || ""}" />`;
+        case "inlineAd":
+          return `<InlineAd adConfig="${f.adConfig || "global"}" />`;
+        case "figure":
+          return `<Figure src="${f.src || ""}" alt="${f.alt || ""}" caption="${f.caption || ""}" />`;
+        default:
+          return `<!-- unknown block: ${f.blockType} -->`;
+      }
+    }
+    case "inlineBlock": {
+      const f = node.fields || {};
+      if (f.blockType === "affiliateLink") {
+        return `[${f.text || ""}](${f.linkUrl || "#"})`;
+      }
+      return "";
+    }
+    case "horizontalrule":
+      return "---";
+    default:
+      return childText();
+  }
+}
+
+async function exportPost(slug: string) {
+  const res = (await api("GET", `/api/posts?where%5Bslug%5D%5Bequals%5D=${slug}&limit=1&depth=0`)) as {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    docs: any[];
+  };
+  if (!res.docs[0]) { console.error("Post not found:", slug); return; }
+  const doc = res.docs[0];
+
+  const tags = Array.isArray(doc.tags) ? doc.tags.map((t: { tag: string }) => t.tag).join(", ") : "";
+  const frontmatter = `---
+title: ${doc.title}
+slug: ${doc.slug}
+description: ${doc.description}
+date: ${doc.date}
+lastFactCheck: ${doc.lastFactCheck || ""}
+draft: ${doc.draft}
+featured: ${doc.featured}
+score: ${doc.score}
+tags: ${tags}
+imageUrl: ${doc.imageUrl || ""}
+imageAlt: ${doc.imageAlt || ""}
+---
+
+`;
+
+  const content = lexicalToMarkdown(doc.content);
+  console.log(frontmatter + content);
+}
+
 async function createPost(args: {
   site: string; title: string; slug: string; description: string;
   category?: string; html?: string; markdownFile?: string;
@@ -212,6 +323,9 @@ async function main() {
     case "get":
       await getPost(getArg("slug") || "");
       break;
+    case "export":
+      await exportPost(getArg("slug") || "");
+      break;
     case "create":
       await createPost({
         site: getArg("site") || "",
@@ -240,7 +354,8 @@ Content CLI — Manage articles via Payload REST API
 
 Commands:
   list   --site <slug>                     List articles for a site
-  get    --slug <slug>                     Get full article data
+  get    --slug <slug>                     Get full article data (JSON)
+  export --slug <slug>                     Export article as markdown with frontmatter
   create --site <slug> --title <t> --slug <s> --description <d>
          [--category <cat>] [--html <html>] [--markdown-file <path>]
          [--tags <t1,t2>] [--draft false]
