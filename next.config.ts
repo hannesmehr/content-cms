@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         source: "/media/:path*",
         destination: `${BLOB_BASE_URL}/:path*`,
       });
+      // /og/* → Blob (OG images)
+      rules.push({
+        source: "/og/:path*",
+        destination: `${BLOB_BASE_URL}/og/:path*`,
+      });
     }
 
     return { beforeFiles: rules, afterFiles: [], fallback: [] };

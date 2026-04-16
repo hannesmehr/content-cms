@@ -1,23 +1,17 @@
 import { ImageResponse } from "next/og";
-import { readFile } from "fs/promises";
-import path from "path";
 import { getSiteBySlug, getThemeColors } from "@/lib/get-sites";
 
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
 async function getCustomFavicon(siteSlug: string): Promise<string | null> {
+  const blobBase = process.env.BLOB_BASE_URL;
+  if (!blobBase) return null;
   try {
-    const svgPath = path.join(
-      process.cwd(),
-      "public",
-      "images",
-      "sites",
-      siteSlug,
-      "favicon.svg"
-    );
-    const svg = await readFile(svgPath, "utf-8");
-    return svg;
+    const url = `${blobBase}/images/sites/${siteSlug}/favicon.svg`;
+    const res = await fetch(url, { cache: "force-cache" });
+    if (!res.ok) return null;
+    return await res.text();
   } catch {
     return null;
   }
