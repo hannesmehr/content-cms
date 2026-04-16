@@ -1,5 +1,21 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme inline {
+  --color-primary-50: var(--theme-primary-50, #eff6ff);
+  --color-primary-100: var(--theme-primary-100, #dbeafe);
+  --color-primary-600: var(--theme-primary-600, #2563eb);
+  --color-primary-700: var(--theme-primary-700, #1d4ed8);
+  --color-accent-50: var(--theme-accent-50, #f5f3ff);
+  --color-accent-100: var(--theme-accent-100, #ede9fe);
+  --color-accent-600: var(--theme-accent-600, #7c3aed);
+  --color-accent-700: var(--theme-accent-700, #6d28d9);
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
