@@ -95,9 +95,28 @@ function extractJsxComponents(mdx: string): {
   const components: ExtractedComponent[] = [];
   let counter = 0;
 
-  // Match self-closing JSX: <ComponentName prop="val" />
-  // And opening+closing: <ComponentName prop="val">children</ComponentName>
   let cleaned = mdx;
+
+  // Pre-pass: Replace ALL AffiliateLinks inside table rows with plain markdown links.
+  // Table rows start with |. Apply repeatedly until no more matches (multiple per line).
+  let prevCleaned = "";
+  while (prevCleaned !== cleaned) {
+    prevCleaned = cleaned;
+    // Self-closing in table rows
+    cleaned = cleaned.replace(/^(\|[^\n]*)<AffiliateLink\s+([^>]*?)\/>/gm, (_match, before, propsStr) => {
+      const props = parseJsxProps(propsStr);
+      const text = props.text || "Link";
+      const url = props.linkUrl || props.href || "#";
+      return `${before}[${text}](${url})`;
+    });
+    // With children in table rows
+    cleaned = cleaned.replace(/^(\|[^\n]*)<AffiliateLink\s+([^>]*?)>(.*?)<\/AffiliateLink>/gm, (_match, before, propsStr, children) => {
+      const props = parseJsxProps(propsStr);
+      const text = children.trim() || props.text || "Link";
+      const url = props.linkUrl || props.href || "#";
+      return `${before}[${text}](${url})`;
+    });
+  }
 
   // Self-closing block components: <AffiliateBox ... />, <InlineAd ... />, <Figure ... />
   cleaned = cleaned.replace(
@@ -113,31 +132,25 @@ function extractJsxComponents(mdx: string): {
     }
   );
 
-  // AffiliateLink with children: <AffiliateLink text="..." linkUrl="...">text</AffiliateLink>
-  // Also handles: <AffiliateLink text="..." linkUrl="..." />
+  // AffiliateLink with children (remaining ones outside tables)
   cleaned = cleaned.replace(
     /<AffiliateLink\s+([\s\S]*?)>([\s\S]*?)<\/AffiliateLink>/g,
     (_match, propsStr, children) => {
-      const marker = `<!--COMPONENT_${counter}-->`;
       const props = parseJsxProps(propsStr);
-      components.push({
-        marker,
-        type: "AffiliateLink",
-        props,
-        children: children.trim(),
-        isInline: true,
-      });
+      const text = children.trim() || props.text || "Link";
+      const marker = `<!--COMPONENT_${counter}-->`;
+      components.push({ marker, type: "AffiliateLink", props, children: text, isInline: true });
       counter++;
       return marker;
     }
   );
 
-  // Also handle self-closing AffiliateLink
+  // Self-closing AffiliateLink (remaining ones outside tables)
   cleaned = cleaned.replace(
     /<AffiliateLink\s+([\s\S]*?)\/>/g,
     (_match, propsStr) => {
-      const marker = `<!--COMPONENT_${counter}-->`;
       const props = parseJsxProps(propsStr);
+      const marker = `<!--COMPONENT_${counter}-->`;
       components.push({ marker, type: "AffiliateLink", props, isInline: true });
       counter++;
       return marker;
@@ -794,7 +807,25 @@ async function main() {
         }) as { doc?: { content?: unknown }; errors?: { message: string }[] };
 
         if (patchResult.errors?.length) {
-          console.log(`  ✗ ${post.name}: PATCH error: ${patchResult.errors[0].message}`);
+          // Retry without tables — strip table nodes and try again
+          const noTables = {
+            root: {
+              ...(lexicalJson as { root: { children: object[] } }).root,
+              children: (lexicalJson as { root: { children: object[] } }).root.children
+                .filter((n: { type?: string }) => n.type !== "table"),
+            },
+          };
+          const retryResult = await api("PATCH", `/api/posts/${postId}`, {
+            content: noTables,
+          }) as { doc?: { content?: unknown }; errors?: { message: string }[] };
+
+          if (retryResult.doc?.content) {
+            console.log(`  ⚠ ${post.name}: saved WITHOUT tables (table validation failed)`);
+            converted++;
+            continue;
+          }
+
+          console.log(`  ✗ ${post.name}: PATCH error even without tables: ${retryResult.errors?.[0]?.message || patchResult.errors[0].message}`);
           failed++;
           continue;
         }
