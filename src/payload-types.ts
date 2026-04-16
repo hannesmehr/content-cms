@@ -202,6 +202,10 @@ export interface Site {
         heroStyle?: ('minimal' | 'image' | 'gradient') | null;
         heroSubline?: string | null;
         heroImage?: (number | null) | Media;
+        /**
+         * Externer Bildpfad für Hero (Fallback wenn kein Upload)
+         */
+        heroImageUrl?: string | null;
         heroImageAlt?: string | null;
         heroCtaText?: string | null;
         heroCtaLink?: string | null;
@@ -676,6 +680,7 @@ export interface SitesSelect<T extends boolean = true> {
         heroStyle?: T;
         heroSubline?: T;
         heroImage?: T;
+        heroImageUrl?: T;
         heroImageAlt?: T;
         heroCtaText?: T;
         heroCtaLink?: T;

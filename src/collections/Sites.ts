@@ -174,6 +174,14 @@ export const Sites: CollectionConfig = {
           },
         },
         {
+          name: 'heroImageUrl',
+          type: 'text',
+          admin: {
+            description: 'Externer Bildpfad für Hero (Fallback wenn kein Upload)',
+            condition: (data, siblingData) => siblingData?.type === 'hero',
+          },
+        },
+        {
           name: 'heroImageAlt',
           type: 'text',
           admin: {

@@ -160,7 +160,7 @@ export default async function HomePage({ params }: Props) {
             title={widget.title || site!.name}
             subline={widget.heroSubline || site!.description}
             style={widget.heroStyle}
-            image={widget.heroImage}
+            image={widget.heroImage || widget.heroImageUrl || null}
             imageAlt={widget.heroImageAlt}
             ctaText={widget.heroCtaText}
             ctaLink={widget.heroCtaLink}
