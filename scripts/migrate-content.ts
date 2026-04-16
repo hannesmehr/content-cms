@@ -15,7 +15,11 @@
 
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import yaml from "yaml";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const API_BASE = process.env.API_BASE || "http://localhost:3002";
 const CONTENT_ROOT = path.resolve(
