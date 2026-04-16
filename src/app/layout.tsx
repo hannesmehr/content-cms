@@ -1,16 +1,10 @@
-import type { Metadata } from 'next'
 import React from 'react'
 import './globals.css'
 
-export const metadata: Metadata = {
-  title: 'Content CMS',
-  description: 'Content Management System',
-}
-
+/* Root layout is intentionally minimal — no <html>/<body> tags here.
+   The (payload) route group provides its own RootLayout with <html>.
+   The (site) route group provides its own layout with <html>.
+   This avoids duplicate <html> nesting. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="de">
-      <body>{children}</body>
-    </html>
-  )
+  return children
 }

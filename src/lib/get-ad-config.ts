@@ -46,7 +46,7 @@ export async function getAdConfigBySlug(
       bannerImage:
         typeof doc.bannerImage === "object" && doc.bannerImage !== null
           ? ((doc.bannerImage as { url?: string }).url || "")
-          : (doc.bannerImage as string) || "",
+          : String(doc.bannerImage || ""),
       bannerImageAlt: (doc.bannerImageAlt as string) || "",
       bannerUrl: (doc.bannerUrl as string) || "",
       bannerAffiliate: (doc.bannerAffiliate as string) || null,

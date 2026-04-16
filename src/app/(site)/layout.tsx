@@ -3,5 +3,9 @@ export default function SiteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <html lang="de">
+      <body>{children}</body>
+    </html>
+  );
 }

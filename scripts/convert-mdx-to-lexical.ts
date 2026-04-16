@@ -525,10 +525,15 @@ async function convertMdxToLexical(mdxBody: string): Promise<object> {
   // Step 2: Convert cleaned markdown to HTML
   const html = await markdownToHtml(markdown);
 
-  // Step 3: Convert HTML to Lexical JSON
-  const lexical = parseHtmlToLexicalManual(html) as {
+  // Step 3: Convert HTML to Lexical JSON via Payload's converter
+  const lexical = (await htmlToLexical(html)) as {
     root: { children: object[] };
-  };
+  } | null;
+
+  if (!lexical?.root?.children) {
+    // Fallback: return minimal valid structure
+    return { root: { type: "root", version: 1, children: [], direction: "ltr", format: "", indent: 0 } };
+  }
 
   // Step 4: Replace component markers with Lexical block nodes
   const finalChildren: object[] = [];
@@ -679,9 +684,28 @@ async function main() {
         }
 
         // Update the post with Lexical content
-        await api("PATCH", `/api/posts/${postId}`, {
+        const patchResult = await api("PATCH", `/api/posts/${postId}`, {
           content: lexicalJson,
-        });
+        }) as { doc?: { content?: unknown }; errors?: { message: string }[] };
+
+        if (patchResult.errors?.length) {
+          console.log(`  ✗ ${post.name}: PATCH error: ${patchResult.errors[0].message}`);
+          failed++;
+          continue;
+        }
+
+        // Verify content was saved
+        const savedContent = patchResult.doc?.content;
+        if (!savedContent) {
+          console.log(`  ⚠ ${post.name}: Content null after PATCH (validation failed?)`);
+          // Dump first 500 chars of what we tried to save
+          if (converted < 3) {
+            const rootChildren = (lexicalJson as { root?: { children?: unknown[] } }).root?.children;
+            console.log(`    Attempted ${rootChildren?.length || 0} root children, first type: ${(rootChildren?.[0] as { type?: string })?.type}`);
+          }
+          failed++;
+          continue;
+        }
 
         converted++;
         if (converted % 20 === 0) console.log(`  ... ${converted} converted`);
